@@ -1,0 +1,29 @@
+{
+  "name": "tiny-node-test",
+  "version": "0.1.0",
+  "main": "dist/bundle.js",
+  "type": "module",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^1.2.2",
+    "cross-env": "^7.0.3",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "format": "biome format --write .",
+    "tsc": "tsc",
+    "bundle": "node bundle.js",
+    "ci": "run-s format bundle",
+    "prod-build": "cross-env NODE_ENV=production run-s tsc bundle",
+    "start": "node --enable-source-maps dist/bundle.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.2.0",
+    "budoux": "^0.5.2",
+    "hono": "^3.8.1",
+    "production-bundler": "0.1.1",
+    "sharp": "^0.32.6"
+  },
+  "private": true
+}

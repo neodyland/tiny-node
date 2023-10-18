@@ -1,0 +1,36 @@
+name: Build and Publish Docker
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    env:
+      AMD_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/amd64-tiny-node
+      ARM_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/arm64-tiny-node
+      MANIFEST_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/tiny-node
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish
+        run: |
+          docker build . --file aarch64.Dockerfile --platform linux/arm64 --tag ${{ env.ARM_IMAGE }}:latest --push
+          docker build . --file x86_64.Dockerfile --platform linux/amd64 --tag ${{ env.AMD_IMAGE }}:latest --push
+          docker manifest create ${{ env.MANIFEST_IMAGE }}:latest ${{ env.AMD_IMAGE }}:latest ${{ env.ARM_IMAGE }}:latest
+          docker manifest push ${{ env.MANIFEST_IMAGE }}:latest
