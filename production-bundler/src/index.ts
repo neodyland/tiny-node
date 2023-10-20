@@ -6,6 +6,11 @@ import { createRequire } from "node:module";
 import { type SpawnOptions, spawn } from "node:child_process";
 import { glob } from "glob";
 import { join, resolve } from "node:path";
+import { parse as cparse } from "comment-json";
+
+function JSONparse(str: string): any {
+    return cparse(str, undefined, true);
+}
 
 async function globDo(
     pattern: string | string[],
@@ -43,7 +48,7 @@ function trimPath(p: string) {
 
 async function resolveDependencies(deps: string[]) {
     const resolved: Record<string, string> = {};
-    const pjson = JSON.parse(await readFile("./package.json", "utf-8"));
+    const pjson = JSONparse(await readFile("./package.json", "utf-8"));
     for (const dep of deps) {
         resolved[dep] = pjson.dependencies[dep];
     }
@@ -145,7 +150,7 @@ export async function bundle(opt: BundleOptions) {
             trimPath(join(opt.outDir, "**/*.json")),
             async (file) => {
                 const min = await readFile(file, { encoding: "utf-8" });
-                await writeFile(file, JSON.stringify(JSON.parse(min)));
+                await writeFile(file, JSON.stringify(JSONparse(min)));
             },
             opt.excludeNodeModulesCompress,
         );
