@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 debian:bookworm AS base
+FROM --platform=linux/arm64 node:slim AS base
 RUN apt-get update && apt-get install -y binutils
 RUN strip /usr/local/bin/node
 FROM --platform=linux/arm64 scratch
